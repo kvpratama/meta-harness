@@ -1,0 +1,64 @@
+# Dataset split sizes — full datasets
+dataset:
+  num_train: 200
+  num_val: 50
+  num_test: 100
+  overrides:
+    # MCE tasks: use full official splits
+    USPTO:                     {num_train: 50, num_val: 30, num_test: 100}
+    USPTO2:                     {num_train: 10, num_val: 10, num_test: 10}
+    Symptom2Disease:           {num_train: 200, num_val: 50, num_test: 212}
+    LawBench:                  {num_train: 200, num_val: 50, num_test: 100}
+
+# Inner loop settings
+inner_loop:
+  mode: online      # "online" or "offline"
+  num_epochs: 1      # For offline mode: 1 epoch for local server speed (was 5)
+  temperature: 0.0   # LLM temperature (null = model default)
+  eval_interval: 0   # 0 = no intermediate evals
+  batch_size: 1
+  seed: 42
+
+# Models to test
+models:
+  # - model: opencode/deepseek-v4-flash-free
+  # - model: gemini/gemma-4-26b-a4b-it
+  # - model: gemini/gemma-4-31b-it
+  - model: gemini/gemini-3.1-flash-lite
+    # api_base: https://generativelanguage.googleapis.com
+  # - model: openrouter/openai/gpt-oss-120b
+  # To use a custom OpenAI-compatible endpoint instead, switch to e.g.:
+  # - model: gpt-oss-120b
+  #   api_base: https://your-api-host/v1
+
+# Benchmark sweep settings
+benchmark:
+  seeds: [42]              # multi-seed: [42, 123, 456]
+  concurrency: 1
+
+# Datasets to test
+datasets:
+  - USPTO2
+  # - Symptom2Disease
+  # - LawBench
+  # - USPTO
+
+# Memory systems to test
+memory_systems:
+  baselines:
+    - no_memory
+    - fewshot_all
+    # - fewshot_memory # Skip in benchmark.py
+
+  proposed: []  # meta_harness.py writes candidate files into agents/ at runtime
+
+# Proposer (agentic CLI that writes candidate memory systems)
+proposer:
+  backend: opencode            # claude | opencode
+  claude:
+    model: opus
+    effort: max
+  opencode:
+    # Set to a valid opencode "provider/model" (see: opencode models)
+    model: opencode/deepseek-v4-flash-free
+    effort: max

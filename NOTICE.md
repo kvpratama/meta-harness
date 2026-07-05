@@ -14,13 +14,13 @@ This project is derived from **Meta-Harness**, released under the MIT License.
 A focused subset of the upstream project, plus an opencode proposer backend:
 
 - [`tutorial/`](tutorial/) — the upstream conceptual walkthrough, unmodified.
-- [`reference_examples/text_classification_opencode/`](reference_examples/text_classification_opencode/) —
+- [`reference_examples/text_classification/`](reference_examples/text_classification/) —
   the text-classification experiment with an added **opencode** proposer backend
   (alongside the original Claude Code backend), for wider accessibility.
 
 ## What is original to this repository
 
-The `text_classification_opencode` variant — the opencode proposer backend and
+The `text_classification` variant — the opencode proposer backend and
 its supporting plumbing (`agent_runner.py`, `opencode_wrapper.py`, backend
 selection in `config.yaml`, and the `.opencode/` workspace) — was contributed by
 this repository's author. It builds directly on the upstream Meta-Harness

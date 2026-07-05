@@ -19,14 +19,14 @@ retrieve, and show while the model works. See the paper,
 
 - [`tutorial/`](tutorial/) — a 7-part conceptual walkthrough of the Meta-Harness
   idea, from the outer loop down to generalizing to a new domain.
-- [`reference_examples/text_classification_opencode/`](reference_examples/text_classification_opencode/README.md) —
+- [`reference_examples/text_classification/`](reference_examples/text_classification/README.md) —
   the text-classification experiment with a selectable proposer backend
   (opencode by default, Claude Code as an alternate).
 
 ## Quick Start
 
 ```bash
-cd reference_examples/text_classification_opencode
+cd reference_examples/text_classification
 uv sync
 uv run python meta_harness.py --iterations 1
 ```
@@ -37,7 +37,7 @@ Install and authenticate the proposer CLI (needed for `--iterations >= 1`):
   then `opencode auth login`; list `provider/model` ids with `opencode models`.
 - **claude** (alternate): install Claude Code and sign in.
 
-See the [example README](reference_examples/text_classification_opencode/README.md)
+See the [example README](reference_examples/text_classification/README.md)
 for full setup, configuration, runtime, and cost details.
 
 ## Citation
