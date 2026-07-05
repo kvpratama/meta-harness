@@ -201,7 +201,7 @@ class ProviderLLM:
 
     @retry(
         retry=retry_if_exception(_is_retryable),
-        wait=wait_exponential(multiplier=2, min=2, max=32) + wait_random(1, 5),
+        wait=wait_exponential(multiplier=3, min=3, max=48) + wait_random(5, 10),
         stop=stop_after_attempt(6),
         reraise=True,
     )
