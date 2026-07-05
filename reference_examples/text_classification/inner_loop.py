@@ -556,6 +556,12 @@ if __name__ == "__main__":
         default=None,
         help="LLM temperature (overrides model default)",
     )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=cfg["inner_loop"].get("max_workers", 32),
+        help="Max parallel LLM calls during eval (default: 32, 1 = sequential)",
+    )
     # New output args: split val/test into separate files
     parser.add_argument(
         "--save-memory",
@@ -702,6 +708,7 @@ if __name__ == "__main__":
                 train_examples,
                 evaluator,
                 batch_size=il["batch_size"],
+                max_workers=args.max_workers,
                 logger=logger,
                 step_offset=0,
                 mode="offline",
@@ -722,6 +729,7 @@ if __name__ == "__main__":
                     train_examples[chunk_start:chunk_end],
                     evaluator,
                     batch_size=il["batch_size"],
+                    max_workers=args.max_workers,
                     logger=logger,
                     step_offset=chunk_start,
                     mode="online",
@@ -746,16 +754,16 @@ if __name__ == "__main__":
     avg_context_len = 0
 
     if eval_val and eval_test:
-        combined = evaluate_memory(memory, val_examples + test_examples, evaluator)
+        combined = evaluate_memory(memory, val_examples + test_examples, evaluator, max_workers=args.max_workers)
         avg_context_len = combined["avg_context_len"]
         val_preds = combined["predictions"][: len(val_examples)]
         test_preds = combined["predictions"][len(val_examples) :]
     elif eval_val:
-        result = evaluate_memory(memory, val_examples, evaluator)
+        result = evaluate_memory(memory, val_examples, evaluator, max_workers=args.max_workers)
         avg_context_len = result["avg_context_len"]
         val_preds = result["predictions"]
     elif eval_test:
-        result = evaluate_memory(memory, test_examples, evaluator)
+        result = evaluate_memory(memory, test_examples, evaluator, max_workers=args.max_workers)
         avg_context_len = result["avg_context_len"]
         test_preds = result["predictions"]
 

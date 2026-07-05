@@ -37,6 +37,7 @@ _PARENT_DIR = str(Path(__file__).resolve().parent.parent)  # absolute path to re
 CONCURRENCY = _CONFIG["benchmark"]["concurrency"]
 _DS_DEFAULTS = {k: _CONFIG["dataset"][k] for k in ("num_train", "num_val", "num_test")}
 _DS_OVERRIDES = _CONFIG["dataset"].get("overrides", {})
+_MAX_WORKERS = _CONFIG.get("inner_loop", {}).get("max_workers", 32)
 
 DEFAULT_SEED = 42
 _SKIP_MEMORY_FILES = {"__init__", "fewshot_memory"}
@@ -449,6 +450,8 @@ def build_val_runs(
                         model,
                         "--mode",
                         mode,
+                        "--max-workers",
+                        str(_MAX_WORKERS),
                         "--val-output",
                         str(val_file),
                         "--save-memory",
@@ -536,6 +539,8 @@ def build_test_runs(
                         model,
                         "--mode",
                         mode,
+                        "--max-workers",
+                        str(_MAX_WORKERS),
                         "--load-memory",
                         str(memory_file),
                         "--test-output",
