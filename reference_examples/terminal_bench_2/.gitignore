@@ -5,5 +5,8 @@ __pycache__/
 
 jobs/
 logs/claude_sessions/
+logs/opencode_sessions/
 logs/pending_eval.json
 logs/frontier_val.json
+
+.opencode/agent/*.md

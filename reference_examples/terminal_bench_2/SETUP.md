@@ -31,6 +31,18 @@ The shipped `runloop` path requires both `ANTHROPIC_API_KEY` and `RUNLOOP_API_KE
 
 The default model in this example is `anthropic/claude-opus-4-6`. Override `HARBOR_MODEL` only if you intentionally want a non-default config.
 
+## Proposer Backend (only needed for `--iterations >= 1`)
+
+`meta_harness.py` runs an agentic CLI as the proposer that writes candidate agents.
+Two backends are supported (see the README "Proposer Backends" section):
+
+- **claude** (default): install Claude Code and sign in.
+- **opencode**: install per the [opencode docs](https://opencode.ai), then
+  `opencode auth login`. List valid `provider/model` identifiers with
+  `opencode models`, and pass one via `--proposer-model`. The workspace ships
+  `.opencode/` with the opencode plugin dependency; run the opencode CLI once in
+  this directory (or `bun install` inside `.opencode/`) if the plugin is missing.
+
 Default concurrency in this release is `50`. This setup is sensitive to Anthropic API throughput: API tier matters, sharing the same API key with other active projects makes runs slower, and many apparent failures at higher concurrency are actually timeout failures rather than reasoning failures.
 
 ## Task Set

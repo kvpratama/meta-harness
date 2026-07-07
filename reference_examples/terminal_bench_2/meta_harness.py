@@ -18,6 +18,7 @@ from datetime import datetime
 from pathlib import Path
 
 import claude_wrapper
+import opencode_wrapper
 from dotenv import load_dotenv
 
 # ── ANSI colors ──────────────────────────────────────────────
@@ -406,25 +407,40 @@ def update_evolution_summary(
             f.write(json.dumps(row) + "\n")
 
 
-def propose_claude(task_prompt, iteration, timeout=2400):
-    """Call Claude Code to propose new agent candidates. Returns True if pending_eval.json exists."""
-    os.environ.pop("CLAUDECODE", None)
-    # Strip API key so claude CLI uses subscription auth, not API (avoids rate limits)
-    saved_key = os.environ.pop("ANTHROPIC_API_KEY", None)
-    result = claude_wrapper.run(
-        prompt=task_prompt,
-        model="opus",
-        allowed_tools=PROPOSER_ALLOWED_TOOLS,
-        skills=[str(EVOLVE_DIR / ".claude/skills/meta-harness-terminal-bench-2")],
-        cwd=str(EVOLVE_DIR),
-        log_dir=str(LOGS_DIR / "claude_sessions"),
-        name=f"iter{iteration}",
-        timeout_seconds=timeout,
-        effort="max",
-    )
-    # Restore API key for harbor eval runs
-    if saved_key:
-        os.environ["ANTHROPIC_API_KEY"] = saved_key
+def propose(task_prompt, iteration, backend="claude", model=None, effort="max", timeout=2400):
+    """Run the selected proposer backend. Returns True if pending_eval.json exists."""
+    skills = [str(EVOLVE_DIR / ".claude/skills/meta-harness-terminal-bench-2")]
+    log_dir = str(LOGS_DIR / f"{backend}_sessions")
+    if backend == "opencode":
+        result = opencode_wrapper.run(
+            prompt=task_prompt,
+            model=model,
+            allowed_tools=PROPOSER_ALLOWED_TOOLS,
+            skills=skills,
+            cwd=str(EVOLVE_DIR),
+            log_dir=log_dir,
+            name=f"iter{iteration}",
+            timeout_seconds=timeout,
+            effort=effort,
+        )
+    else:
+        os.environ.pop("CLAUDECODE", None)
+        # Strip API key so claude CLI uses subscription auth, not API (avoids rate limits)
+        saved_key = os.environ.pop("ANTHROPIC_API_KEY", None)
+        result = claude_wrapper.run(
+            prompt=task_prompt,
+            model=model or "opus",
+            allowed_tools=PROPOSER_ALLOWED_TOOLS,
+            skills=skills,
+            cwd=str(EVOLVE_DIR),
+            log_dir=log_dir,
+            name=f"iter{iteration}",
+            timeout_seconds=timeout,
+            effort=effort,
+        )
+        # Restore API key for harbor eval runs
+        if saved_key:
+            os.environ["ANTHROPIC_API_KEY"] = saved_key
     if result.exit_code != 0:
         print(f"  {_red('proposer failed')} exit={result.exit_code}")
         if result.stderr:
@@ -666,7 +682,14 @@ def run_evolve(args):
         propose_start = time.time()
         task_prompt = render_task_prompt(iteration, args.trials)
         print(f"  {_ts()} {_cyan('proposing')} new candidates...", flush=True)
-        ok = propose_claude(task_prompt, iteration, timeout=args.propose_timeout)
+        ok = propose(
+            task_prompt,
+            iteration,
+            backend=args.proposer,
+            model=args.proposer_model,
+            effort=args.proposer_effort,
+            timeout=args.propose_timeout,
+        )
         propose_time = time.time() - propose_start
 
         if not ok:
@@ -887,6 +910,24 @@ def main():
         help="Timeout for proposer (seconds)",
     )
     parser.add_argument(
+        "--proposer",
+        choices=["claude", "opencode"],
+        default="claude",
+        help="Proposer backend (default: claude)",
+    )
+    parser.add_argument(
+        "--proposer-model",
+        type=str,
+        default=None,
+        help="Proposer model. Default: 'opus' for claude; required 'provider/model' for opencode.",
+    )
+    parser.add_argument(
+        "--proposer-effort",
+        type=str,
+        default="max",
+        help="Proposer reasoning effort/variant (default: max)",
+    )
+    parser.add_argument(
         "--run-name",
         type=str,
         default=None,
@@ -911,6 +952,11 @@ def main():
         help="Max concurrent trials (default: 50)",
     )
     args = parser.parse_args()
+
+    if args.proposer == "opencode" and not args.proposer_model:
+        parser.error(
+            "--proposer opencode requires --proposer-model (a valid 'provider/model'; see: opencode models)"
+        )
 
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)

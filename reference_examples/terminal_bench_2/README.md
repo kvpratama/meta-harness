@@ -37,6 +37,33 @@ uv run python meta_harness.py --iterations 1
 
 Pass `--full-eval` if you also want the optional 5-trial winner pass on the full dataset.
 
+## Proposer Backends
+
+The proposer (the agentic CLI that writes candidate agents) supports two backends,
+selectable at the command line. Backend-agnostic plumbing lives in
+[`agent_runner.py`](agent_runner.py); the backends are
+[`claude_wrapper.py`](claude_wrapper.py) and [`opencode_wrapper.py`](opencode_wrapper.py).
+
+- **claude** (default): uses Claude Code (`claude -p`), model `opus`.
+- **opencode**: uses `opencode run --format json`. Requires an explicit
+  `provider/model` string (run `opencode models` to list valid identifiers).
+
+```bash
+# default (Claude Code)
+uv run python meta_harness.py --iterations 1
+
+# opencode backend
+uv run python meta_harness.py --iterations 1 \
+  --proposer opencode --proposer-model openrouter/openai/gpt-oss-120b
+```
+
+Relevant flags: `--proposer {claude,opencode}`, `--proposer-model MODEL`,
+`--proposer-effort EFFORT` (default `max`). The shared skill prior
+(`.claude/skills/meta-harness-terminal-bench-2/SKILL.md`) is used by both backends;
+opencode receives it via a temporary agent file generated at
+`.opencode/agent/<name>.md` (auto-removed after each run). Proposer sessions are
+logged under `logs/<backend>_sessions/`.
+
 ## Repro And Troubleshooting
 
 - The shipped `runloop` path requires both `ANTHROPIC_API_KEY` and `RUNLOOP_API_KEY`.
@@ -48,7 +75,10 @@ Pass `--full-eval` if you also want the optional 5-trial winner pass on the full
 
 ## Key Files
 
-- `.claude/skills/meta-harness-terminal-bench-2/SKILL.md`: proposer prior used by `meta_harness.py`.
+- `.claude/skills/meta-harness-terminal-bench-2/SKILL.md`: proposer prior used by `meta_harness.py` (shared by both proposer backends).
+- `agent_runner.py`: backend-agnostic proposer base (subprocess streaming, logging, skill loading).
+- `claude_wrapper.py` / `opencode_wrapper.py`: proposer backends (Claude Code and opencode).
+- `.opencode/`: opencode workspace config (plugin dependency); generated agent files land in `.opencode/agent/`.
 - `agents/`: baseline agents and the write target for generated candidates.
 - `prompt-templates/terminus-kira.txt`: prompt template used by `baseline_kira.py`.
 
