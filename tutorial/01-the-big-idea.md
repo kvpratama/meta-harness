@@ -1,9 +1,10 @@
 # Part 1 — The Big Idea: Searching Over Harnesses
 
-> **About this series.** These seven parts teach the Meta-Harness framework to developers who
+> **About this series.** These eleven parts teach the Meta-Harness framework to developers who
 > already know Python but are new to this repo. We use the `text_classification` reference
-> experiment as the running example and bring in `terminal_bench_2` at the end to show the
-> pattern generalizes. Every code snippet cites a file path and line numbers; those line numbers
+> experiment as the running example (Parts 1–6), introduce `terminal_bench_2` as a second domain in
+> Part 7, and then give it the same per-concept depth in Parts 8–11 to show the pattern generalizes.
+> Every code snippet cites a file path and line numbers; those line numbers
 > are tied to the repo snapshot at commit `95175f7`. If the code has moved since, the surrounding
 > function names will still get you to the right place.
 

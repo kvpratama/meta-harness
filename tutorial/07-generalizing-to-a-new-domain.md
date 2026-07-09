@@ -138,16 +138,16 @@ templates to copy from.
   is unchanged.
 - **Onboarding is the framework as a questionnaire.** Every field in `domain_spec.md` maps to a
   concept from this series; answering them honestly is how you instantiate the loop for a new task.
-- **You now have the whole picture.** Harness contract → inner loop → sweep & frontier → proposer →
-  evolution loop → a second domain proving it generalizes. The same six ideas carry to whatever you
-  build next.
+- **This part is the bridge, not the destination.** Everything above is the *conceptual* map of the
+  second domain: same loop, different flesh. Parts 8–11 give Terminal-Bench 2 the same per-concept
+  depth text classification received in Parts 2–6.
 
 ---
 
-*That's the series. You've followed a single candidate from interface to score, watched the search
-generate and rank candidates, and seen the loop transplanted to a completely different domain. The
-natural next step: open `ONBOARDING.md`, run it against a task of your own, and let it draft your
-`domain_spec.md`.*
+*Next up: the Terminal-Bench 2 deep dive. Part 8 — The Agent Scaffold as Harness — makes the
+`AgentHarness`/`Terminus2` contract concrete (the TB2 analog of Part 2), then Part 9 scores one
+candidate on a real sandbox, Part 10 covers the pluggable proposer backends, and Part 11 ties the
+TB2 evolution loop together and closes the series.*
 
 ## ✦ Check Your Understanding
 
